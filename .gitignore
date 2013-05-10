@@ -1,0 +1,10 @@
+# html and css is compiled from
+# jade/sass. So don't add the 
+# compiled files.
+*.html
+*.css
+
+# We don't want node modules
+/node_modules/
+
+/tmp
