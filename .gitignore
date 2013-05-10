@@ -5,9 +5,10 @@
 *.css
 
 # We don't want node modules
-/node_modules/
+demo/node_modules/
+demo/cat/
+demo/downloads/*
 
 /tmp
-/demo
 /presentation/terminology.md
 
