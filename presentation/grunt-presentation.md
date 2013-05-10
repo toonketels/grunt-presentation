@@ -99,7 +99,7 @@ Uses npm for distributing plugins (and itself).
 
 ## How?
 
-> How to get started with grunt?
+> Start letting Grunt do the work
 
 
 ### Installing Grunt
@@ -130,7 +130,7 @@ Now, the "exact" version of grunt travels with your project in your
 `package.json`.
 
 
-### Using Grunt
+### Using Grunt - the minimum
 
 #### Package.json
 
@@ -577,7 +577,7 @@ Done, everything works like before except your `Gruntfile.js` is less
 cluttered.
 
 
-### Magic config object keys
+### Magic config object attributes
 
 We've seen and used the config JSON object already a handful of times.
 We know plugins `function tasks` and `multi tasks` specify which keys
@@ -824,7 +824,7 @@ Use `grunt-init` to do project scaffolding.
 
 Just like `grunt-cli` it's supposed to be installed globally once.
 
-    npm install -g grunt-cli
+    npm install -g grunt-init
 
 This only makes it possible to do scaffolding by running the command.
 Projects are generated according to _templates_.
@@ -1002,6 +1002,6 @@ We're not only saving time, just as a normal task, we can invest some
 time in tuning this setup, and never pay it when actually using it.
 
 
-### Q&a
+## Q&a
 
 ## Meta
