@@ -30,33 +30,33 @@ Uses npm for distributing plugins (and itself).
 > Why use task runners and, why grunt?
 
 
-### Why a taskrunner?
+### Why a task runner?
 
-*   Invest time once up front to do the right thing, consistently do 
-    the right thing without any time cost.
+*  Invest time once up front to do the right thing, consistently do 
+   the right thing without any time cost.
 
-    This results in consistent quality, less bugs.
+   This results in consistent quality, less bugs.
 
-*   Create machine-readable documentation that make your workflow 
-    reproducible [Why use make - Mike Bostock](http://bost.ocks.org/mike/make/).
+*  Create machine-readable documentation that make your workflow 
+   reproducible [Why use make - Mike Bostock](http://bost.ocks.org/mike/make/).
 
 
-### Why a JavaScript taskrunner?
+### Why a JavaScript task runner?
 
-*   Front-end needs build-systems with their client side MVC-frameworks,
-    templating languages to compile to html, css preprocessors to be 
-    compiled to css, JavaScript files to be linted, concatenated, 
-    minified...
-
-    JS makes it easier for front-end developers to use. This way a front
-    and back end developer can use the same build system. Making the
-    project easier to understand. 
-
-    We can do `grunt -h` to see all available tasks.
-
-    Back ender can create advanced task for front-end developer if needed.
-
-*   So we can leverage npm.
+*  Front-end needs build-systems with their client side MVC-frameworks,
+   templating languages to compile to html, css preprocessors to be 
+   compiled to css, JavaScript files to be linted, concatenated, 
+   minified...
+  
+   JS makes it easier for front-end developers to use. This way a front
+   and back end developer can use the same build system. Making the
+   project easier to understand. 
+  
+   We can do `grunt -h` to see all available tasks.
+  
+   Back ender can create advanced task for front-end developer if needed.
+  
+*  So we can leverage npm.
 
 
 ### Why Grunt?
@@ -71,30 +71,30 @@ Uses npm for distributing plugins (and itself).
 
 #### Grunt aces all requirements
 
-1.  Easy to use
+1. Easy to use
 
-    Great (documented) API, great docs, great plugins to read the
-    source from, posts, presentations...
+   Great (documented) API, great docs, great plugins to read the
+   source from, posts, presentations...
 
-    Did I mention the [website is great](http://gruntjs.com)?
+   Did I mention the [website is great](http://gruntjs.com)?
 
-2.  Future proof
+2. Future proof
 
-    *   The project has some momentum going and no signs of slowing down.    
-    *   They have a [roadmap](https://github.com/gruntjs/grunt/wiki/Roadmap).
-    *   Great [people are behind it](https://github.com/gruntjs?tab=members).
-    *   Adopted by [open-source projects and organizations](http://gruntjs.com/who-uses-grunt).
+   *  The project has some momentum going and no signs of slowing down.    
+   *  They have a [roadmap](https://github.com/gruntjs/grunt/wiki/Roadmap).
+   *  Great [people are behind it](https://github.com/gruntjs?tab=members).
+   *  Adopted by [open-source projects and organizations](http://gruntjs.com/who-uses-grunt).
 
-3.  Don't want to write all code myself (plugin system)
+3. Don't want to write all code myself (plugin system)
 
-    Offers a rich [plugin eco system](http://gruntjs.com/plugins) powered by npm.
+   Offers a rich [plugin eco system](http://gruntjs.com/plugins) powered by npm.
 
-    npm makes it easy for anyone to contribute plugins.
+   npm makes it easy for anyone to contribute plugins.
 
-4.  Everybody else uses it
+4. Everybody else uses it
 
-    *   It is gaining traction.
-    *   If not using, mostly welcomed once Grunt gets introduced.
+   *  It is gaining traction.
+   *  If not using, mostly welcomed once Grunt gets introduced.
 
 
 ## How?
@@ -188,12 +188,12 @@ The `package.json` now looks like:
     }
 
 
-#### Gruntfile.js
+#### The Gruntfile
 
 The `Gruntfile.js` consists of three parts:
-1.   Configuring tasks
-2.   Loading plugins and tasks
-3.   Defining task aliases and custom tasks
+1. Configuring tasks
+2. Loading plugins and tasks
+3. Defining task aliases and custom tasks
 
 Gruntfile.js:
 
@@ -301,11 +301,6 @@ Besides the tasks loaded via plugins, we define our own tasks:
 This is known as a _alias task_ as it will just run a set of other
 tasks in sequence. Those tasks are specified as an array in taskslist.
 
-If we really want to go crazy, we can specify _function tasks_ which
-will... execute a function.
-
-    grunt.registerTask('name', 'description', function);
-
 We'll dive a bit deeper into the API a bit further but that's all there
 is to know to set up Grunt.
 
@@ -326,11 +321,277 @@ To execute any other task do:
 This will execute the `jade` and `sass` task. For jade it will execute 
 the `dev` target (later more about that).
 
+We can also execute multiple tasks at once
+
+    grunt jade:prod sass
+
+Or get help
+
+    grunt --help
+    grunt -h
+
 That's all we need to know to execute tasks. We can now use Grunt.
 
+
+### Tasks deep dive
+
+> Maybe not so deep...
+
+#### Different types of tasks
+
+We've seen _alias tasks_. There are actually three types:
+*  alias task
+*  function task
+*  multi task
+
+_Function tasks_ are similar to `alias tasks` except they... execute
+a function when called.
+
+    grunt.registerTask('name', 'description', function);
+
+A _multi task_ is the most common task when dealing with plugins. You
+can define your own via:
+
+    grunt.task.registerMultiTask('name', 'description', function)
+
+This kind of task's execution is tied to a _target_. We have to possibility
+to define multiple targets like 'dev', 'prod' and specify the configuration
+for each one.
+
+In our example, both jade and sass are multitasks. The plugin's documentation
+should specify if multiple targets are possible.
+
+For jade we've specified two targets `dev` and `prod`.
+
+`grunt jade` will execute both targets one after the other
+`grunt jade:dev` will execute only the dev task
+
+
+#### Access data from within tasks
+
+In multi tasks and functions we'll execute a function we've defined.
+
+There are several ways of accessing data from within the function to do
+something useful.
+
+
+##### Arguments
+
+We pass arguments to functions when executing a task:
+
+    grunt introspect:one:two
+
+`one` and `two` are passed to the function. We can access them via arguments
+object or as named parameters, just like any other function.
+
+    grunt.registerTask('introspect', function(argOne, argTwo) {
+      arguments;          // { '0': 'one', '1': 'two' }
+
+      argOne;             // one
+      argTwo;             // two
+    }
+
+Other options is to get them from the "rich" `this` object.
+
+    this.nameArgs
+    this.args
+    this.flags
+
+
+##### "Rich" this object
+
+Inside a task function, `this` is augmented with several objects and
+parameters.
+
+    { 
+      nameArgs: 'introspect:one:two',
+      name: 'introspect',
+      args: [ 'one', 'two' ],
+      flags: { one: true, two: true },
+      async: [Function],
+      errorCount: [Getter],
+      requires: [Function],
+      requiresConfig: [Function],
+      options: [Function] 
+    }
+
+`target` is key we access withing a multi task.
+
+
+##### Access configuration
+
+Access the configuration object:
+
+    grunt.config.get(this.name)
+
+Will give:
+
+    { 
+      configOne: 'config one',
+      configTwo: [ 1, 2 ]
+    }
+
+
+##### Access package information
+
+Since we made the package part of the config object we do:
+
+    grunt.config.get('pkg');
+
+Will give:
+
+    { 
+      name: 'grunt-presentation',
+      version: '0.1.0',
+      devDependencies:{ 
+        grunt: '~0.4.1',
+        'grunt-contrib-sass': '~0.3.0',
+        'grunt-jade': '~0.4.0'
+      }
+    }
+
+
+##### Options
+
+We can pass options when invoking a task:
+
+    grunt introspect:one:two --env=demo
+
+This can be accessed in two ways:
+
+    grunt.option('env')         // demo
+    grunt.option.flags()        // ['--env=demo']
+
+
+#### Pass info to tasks
+
+The other way arount we could say there are four ways to pass 
+information to tasks:
+
+*  Make it part of _configuration object_, configure per _target_
+*  Add it to _package.json_
+*  Pass as parameters
+*  Pass as options
+
+
+#### Async tasks
+
+For async tasks, we need to indicate when we're done to prevent the
+task from terminating too early.
+
+Below we configure and register a multi task to perform a get request
+and download the response in the downloads folder.
+
+    grunt.initConfig({
+      pkg: grunt.file.readJSON('package.json'),
+      get: {
+        'node-json': {
+          'url': "http://nodejs.org/api/all.json",
+          'name': 'node-docs.json'
+        },
+        'node-html': {
+          'url': "http://nodejs.org/api/all.html",
+          'name': 'node-docs.html'
+        }
+      }
+    });
+
+
+    grunt.registerMultiTask('get', 'Perform get request', function() {
+  
+      var http = require('http'),
+          fs = require('fs'),
+          config = grunt.config.get(this.name)[this.target],
+          url =  config.url,
+          name = config.name,
+          prefix =  grunt.template.today('yyyy-mm-dd-hh-MM-ss'),
+          dir =  'downloads',
+          file = grunt.template.process("<%= dir %>/<%= prefix %>-<%= name %>",{ data: {dir: dir, prefix: prefix, name: name }}),
+          done = this.async(),
+          fd;
+  
+      http.get(url, function(res) {
+  
+        grunt.log.writeln("Got response: " + res.statusCode);
+        grunt.log.writeln("Downloading...");
+  
+        res.setEncoding('utf8');
+        fd = fs.openSync(file, 'w');
+        
+        res.on('data', function (chunk) {
+          fs.writeSync(fd, chunk);
+          grunt.verbose.writeln("Wrote chunk...");
+        });
+        
+        res.on('end', function() {
+            grunt.log.ok("Loaded");
+            fs.closeSync(fd);
+            done();
+        });
+      }).on('error', function(e) {
+        grunt.fail.fatal("Got error: " + e.message);
+      });
+    });
+
+The only thing required to successfully work with async tasks is to
+
+1. Get the `done` function.
+
+    var done = this.async();
+
+2. Call it when... we're done.
+
+    done();
+
+
+#### Refactor and load tasks from own files
+
+The `Gruntfile.js` can become too big when defining lots of custom tasks.
+
+We have two options to separate our tasks into separate files:
+
+1. Create Grunt contrib plugin (and share on npm)
+2. Wrap tasks as modules and move to folder
+
+
+##### Move tasks to separate folder
+
+First, create a file per task in a different folder.
+
+    mkdir tasks
+    touch tasks/get.js
+
+Wrap each task as a module:
+
+    module.exports = function(grunt) {
+      grunt.registerMultiTask('get', 'Perform get request', function() {
+        // ...
+      }
+    }
+
+Finally, load the files into the `Gruntfile.js`:
+
+      grunt.task.loadTasks('tasks');
+
+Done, everything works like before except your `Gruntfile.js` is less
+cluttered.
+
+
+### Magic config object keys
+
+#### Options
+
+#### Files
+
+
+### Logging and failing
 
 
 ### Scaffolding - a special task
 
+
+### Remarks
+
+#### 2 types of "options"
 
 ## Meta
