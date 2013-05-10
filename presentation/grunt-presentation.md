@@ -718,6 +718,8 @@ Compact and file array format allow for other file attributes like:
 * `dot`
 * ...
 
+Checkout [documentation about config](http://gruntjs.com/configuring-tasks) to find out more.
+
 
 ##### What files magic does
 
@@ -760,7 +762,7 @@ Although we've specified a pattern in the config, the array contains
 only filename mappings.
 
 
-#### Conclusion
+#### A word of advice
 
 Checkout the documentation to for "magic attributes" which will 
 to something with the data provided. 
@@ -769,8 +771,24 @@ Especially when you create a configurable tasks, only take "magic keys"
 when you want to use them like they're intended. 
 
 
-
 ### Logging and failing
+
+To keep consistent terminal output we use `grunt.log`, 'grunt.verbose'
+and `grunt.fail` when communicating to user.
+
+    grunt.log.writeln('My message');
+    grunt.log.ok();
+
+    // Only triggered with --verbose flag
+    grunt.verbose.writeln('Message');
+
+    grunt.fail.warn('Message');
+    grunt.fail.fatal('Message');
+
+Verbose logging will only be visible when the command is executed with
+the `--verbose` flag.
+
+    grunt get:node-json --verbose
 
 
 ### Scaffolding - a special task
