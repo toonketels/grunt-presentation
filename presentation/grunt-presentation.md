@@ -537,11 +537,11 @@ The only thing required to successfully work with async tasks is to
 
 1. Get the `done` function.
 
-    var done = this.async();
+    `var done = this.async();`
 
 2. Call it when... we're done.
 
-    done();
+    `done();`
 
 
 #### Refactor and load tasks from own files
@@ -579,9 +579,195 @@ cluttered.
 
 ### Magic config object keys
 
+We've seen and used the config JSON object already a handful of times.
+We know plugins `function tasks` and `multi tasks` specify which keys
+to use.
+
+Now, not all keys are equal. Some are magic.
+
+Magic means they do some stuff behind the scenes are defined by Grunt 
+to be used by us.
+
+Let's look into some of these magic object keys.
+
+
 #### Options
 
+The `options` key is particularly useful for plugin authors. It allows
+the author to specify a configuration in its plugin and allow the `options`
+key to override his defaults.
+
+We see this happening in the `jade` plugin.
+
+Our config with `options` key:
+
+    grunt.initConfig({
+      jade: {
+        dev: {
+          options: {
+            client: false,
+            pretty: true
+          }
+        }
+      }
+    }
+
+Inside the jade plugins `jade.js`:
+
+    grunt.registerMultiTask('jade', 'Compile your Jade templates', function() {
+   
+      var defaults = {
+        client: true,
+        runtime: true,
+        compileDebug: false,
+        extension: null,
+        wrap: null,
+        locals: null,
+        basePath: null
+      };
+  
+      // Options object for jade
+      var options = this.options(defaults);
+  
+      // ...
+    }
+
+The author activates the options by calling
+    
+    this.options({})
+
+from within his task.
+
+
 #### Files
+
+The other area to introduce "lots" of "magic keys" is files.
+
+Since a task runner as grunt has to deal a lot with files, there are quite
+some configuration keys for that.
+
+
+##### Formats
+
+Specifying source/destination mapping can happen on three different ways.
+
+
+###### Compact format
+
+    grunt.initConfig({
+      'cat: {
+        one: {
+          src: ['src/bb.js', 'src/bbb.js'],
+          dest: 'dest/b.js',
+        },
+      },
+    });
+
+Pro
++ Succinct
++ We can add other file attributes too (more magic keys)
+
+Con
+- Only one mapping possible
+
+
+###### File object format
+
+    grunt.initConfig({
+      cat: {
+        one: {
+          files: {
+            'dest/a.js': ['src/aa.js', 'src/aaa.js'],
+            'dest/a1.js': ['src/aa1.js', 'src/aaa1.js'],
+          }
+        }
+      }
+    });
+
+Pro
++ Multiple mappings
+
+Con
+- We cannot add file attributes
+
+
+###### File array format
+
+    grunt.initConfig({
+      cat: {
+        one: {
+          files: [
+            {src: ['src/aa.js', 'src/aaa.js'], dest: 'dest/a.js'},
+            {src: ['src/aa1.js', 'src/aaa1.js'], dest: 'dest/a1.js'},
+          ],
+        }
+      }
+    });
+
+Pro
++ Multiple mappings
++ We can add other file attributes too (more magic keys)
+
+
+##### Other file attributes
+
+Compact and file array format allow for other file attributes like:
+
+* `filter`
+* `expand`
+* `dot`
+* ...
+
+
+##### What files magic does
+
+Consider following task which will concatenate several files.
+
+    Grunt.initConfig({
+      cat: {
+        'one': {
+          'src': ['downloads/*.json'],
+          'dest': 'cat/one.cat',
+        },
+        'two': {
+          'src': ['downloads/*'],
+          'dest': 'cat/two.cat',
+          'filter': function(filepath) {
+            var stats = require('fs').statSync(filepath);
+            return stats.size < 600000;
+          }
+        }
+      }
+    });
+
+    grunt.registerMultiTask('cat', 'Concatenate files', function() {
+
+      var files = this.files;
+  
+      this.files.forEach(function(file) {
+        var output = file.src.map(function(filepath) {
+          return grunt.file.read(filepath);
+        }).join('\n');
+        grunt.file.write(file.dest, output);
+      });
+  
+    });
+
+Grunt creates a normalized array of file mappings accessible via 
+`this.files`.
+
+Although we've specified a pattern in the config, the array contains
+only filename mappings.
+
+
+#### Conclusion
+
+Checkout the documentation to for "magic attributes" which will 
+to something with the data provided. 
+
+Especially when you create a configurable tasks, only take "magic keys"
+when you want to use them like they're intended. 
+
 
 
 ### Logging and failing
