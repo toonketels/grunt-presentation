@@ -773,7 +773,7 @@ when you want to use them like they're intended.
 
 ### Logging and failing
 
-To keep consistent terminal output we use `grunt.log`, 'grunt.verbose'
+To keep consistent terminal output we use `grunt.log`, `grunt.verbose`
 and `grunt.fail` when communicating to user.
 
     grunt.log.writeln('My message');
@@ -793,9 +793,215 @@ the `--verbose` flag.
 
 ### Scaffolding - a special task
 
+#### Over and over again
 
-### Remarks
+Even for a some quick "messing around" or some front end experimentation 
+I probably want to:
 
-#### 2 types of "options"
+* Use `jade`
+* Use `sass`
+* Have a `package.json`
+* Have an `index.html` ready
+* Have `jQuery` ready to use
+* Serve files from a server in case I want to do GET requests
+* Watch for changes in jade/sass to automatically compile
+* Live reload the page served on changes
+
+And while we're at it it's probably best to:
+
+* Add a `README.md`
+* Add `.gitignore` to not track compiled files/node modules
+* Add `.jshintrc` for linting configuration
+* Add `.gitattributes` to prevent line ending troubles
+
+Even if this takes 5 - 10 minutes, that still sucks. Luckily, grunt
+comes to the rescue.
+
+
+#### Grunt-init
+
+Use `grunt-init` to do project scaffolding.
+
+Just like `grunt-cli` it's supposed to be installed globally once.
+
+    npm install -g grunt-cli
+
+This only makes it possible to do scaffolding by running the command.
+Projects are generated according to _templates_.
+
+
+#### Project templates
+
+Project templates are supposed to be installed in
+
+    `~/.grunt-init/`
+
+It's recommended to git clone grunt-init-templates in the directory.
+
+    git clone git@github.com:toonketels/grunt-init-tk-front.git ~/.grunt-init/tk-front
+
+There is no limit to the number of templates you can use. On the 
+[Grunt website](http://gruntjs.com/project-scaffolding) you'll find some.
+
+To view a list of all your installed templates do:
+
+    grunt-init
+
+Templates get the name of the directory they're downloaded into. This means
+you and I can have different names for the same template.
+
+To create a new project with a template do:
+
+    cd /path/to/create/project/into
+    mkdir project-name
+    cd project-name
+
+    grunt-init tk-front
+
+Some questions will be prompted for and the project will be created.
+
+
+#### The prompt
+
+Grunt is pretty smart about prompting questions.
+
+It offers decent defaults _(project name is project dir name, title is
+Capitalized name)_. If you don't like the supplied defaults, create a 
+`defaults.json` in `~/.grunt-init`. 
+
+    {
+      "author_name": "Toon Ketels",
+      "author_email": "none",
+      "author_url": "http://toonketels.be/"
+    }
+
+Your defaults will be used on all grunt projects on your computer.
+
+This results in you pressing enter a lot instead of typing in your answer.
+
+
+#### Create you own template
+
+A template consists of three things:
+
+    my-template/template.js
+    my-template/rename.json
+    my-template/root/
+
+`template.js` contains the logic of creating new templates, prompting
+for information...
+
+`rename.json` is a mapping for renaming files. This is optional.
+
+`root` is the directory all files will be copied from.
+
+
+#### template.js
+
+Expose two functions to make it work:
+
+    exports.description = "Description";
+
+    // The real meat
+    exports.template = function(grunt, init, done) {}
+
+In the template function, we mainly prompt the user for data, supply
+our own data to be passed to the files to be copied over and command
+the creation of files.
+
+    exports.template = function(grunt, init, done) {
+      "use strict";
+    
+      // Start prompting..
+      init.process({
+        'type': 'browser',
+        "devDependencies": {
+          "grunt": "~0.4.1",
+          "grunt-contrib-connect": "~0.2.0",
+          "grunt-jade": "~0.4.0",
+          "grunt-regarde": "~0.1.1",
+          "grunt-contrib-livereload": "~0.1.2",
+          "grunt-contrib-sass": "~0.3.0"
+        }
+      }, [
+        init.prompt('name'),
+        init.prompt('version'),
+        init.prompt('title'),
+        {
+          name: 'langcode',
+          message: 'The language of the default index.html',
+          default: 'en',
+          warning: 'It must be an 2 character language code.'
+        }
+      ], function(err, props) {
+    
+        // Grab the files...
+        var files = init.filesToCopy(props);
+    
+        // Actually copy (and process) files...
+        init.copyAndProcess(files, props);
+    
+        // Generate package.json file.
+        init.writePackageJSON('package.json', props);
+    
+        done();
+      });
+    };
+
+In more detail:
+
+Start the process of prompting for questions, once we have the data,
+the callback gets executed and we do our thing.
+
+    init.process({options}, [prompts], cb)
+
+To use the build in default prompts do:
+    
+    init.prompt('name');
+
+To create custom prompts do:
+
+    {
+      name: 'langcode',
+      message: 'The language of the default index.html',
+      default: 'en',
+      warning: 'It must be a 2 character language code.'
+    }
+
+To copy the files in `root` dir and swap the variables do:
+
+    // Grab the files...
+    var files = init.filesToCopy(props);
+
+    // Actually copy (and process) files...
+    init.copyAndProcess(files, props);
+
+To generate a package.json do:
+
+    init.writePackageJSON('package.json', props);
+
+And to generate a license do _(before copyAndProcess)_:
+
+    var licenses = ['MIT'];
+    init.addLicenseFiles(files, licenses);
+
+
+#### Root
+
+All files will be parsed and variables will be replaced with the data
+supplied by the options object and data prompted for.
+
+    {%= title %}
+
+
+#### Final work on project scaffolding
+
+Once you get used getting ready under one minute, you wont go back.
+
+We're not only saving time, just as a normal task, we can invest some
+time in tuning this setup, and never pay it when actually using it.
+
+
+### Q&a
 
 ## Meta
