@@ -155,8 +155,9 @@ Next time someone checks out your project they'll do:
 
     npm install
 
-to download "your version" (or a later one) of grunt. You can always edit `package.json`
-to lock it down for an exact version of grunt in case of issues.
+to download "your version" (or a later one) of grunt. You can always
+edit `package.json` to lock it down for an exact version of grunt in 
+case of issues.
 
 The `package.json` is now updated like this:
 
@@ -168,8 +169,8 @@ The `package.json` is now updated like this:
       }
     }
 
-Download `grunt-contrib-sass` and `grunt-jade` so we have some grunt plugins
-to play with.
+Download `grunt-contrib-sass` and `grunt-jade` so we have some grunt 
+plugins to play with.
 
     npm install grunt-contrib-sass --save-dev
     npm install grunt-jade --save-dev
@@ -189,6 +190,143 @@ The `package.json` now looks like:
 
 #### Gruntfile.js
 
+The `Gruntfile.js` consists of three parts:
+1.   Configuring tasks
+2.   Loading plugins and tasks
+3.   Defining task aliases and custom tasks
+
+Gruntfile.js:
+
+    module.exports = function(grunt) {
+      "use strict";
+    gr
+      // Config...
+      grunt.initConfig({
+        pkg: grunt.file.readJSON('package.json'),
+        jade: {
+          dev: {
+            files: {
+              'www/': ['jade/*.jade']
+            },
+            options: {
+              client: false,
+              pretty: true
+            }
+          }
+          prod: {
+            files: {
+              'www/': ['jade/*.jade']
+            },
+            options: {
+              client: false,
+              pretty: false
+            }
+          }
+        },
+        sass: {
+          dev: {
+            options: {
+              style: 'expanded'
+            },
+            files: {
+              'www/css/main.css': 'sass/main.sass' 
+            }
+          }
+        },
+      });
+    
+    
+      // Load tasks...
+      grunt.loadNpmTasks('grunt-jade');
+      grunt.loadNpmTasks('grunt-contrib-sass');
+    
+      // Task aliases and tasks
+      grunt.registerTask('default', 'Compile jade/sass into html/css', ['jade:dev', 'sass:dev']);
+    };
+
+
+##### Module
+
+The `Gruntfile.js` is wrapped within a `module.exports` to which the
+`grunt` object is passed.
+
+
+##### Configuration basics
+
+Configuration is done by
+
+    grunt.initConfig({})
+
+to which a JSON configuration object is passed.
+
+The first key of that object is the `package.json` made available
+as `pkg` like so:
+
+    pkg: grunt.file.readJSON('package.json')
+
+This allows us to access the name and version as properties of the
+configuration object:
+
+    pkg.name
+    pkg.version
+
+The other keys are configuration objects specified by the contrib plugins
+we load. Their github repo's should have good documentation.
+
+We can also add our own custom data if we want to.
+
+
+##### Loading tasks
+
+Contrib plugins are loaded via
+
+    grunt.loadNpmTasks('grunt-jade');
+
+which is a shortcut for
+
+    grunt.task.loadNpmTasks('grunt-jade');
+
+This makes available all the tasks provided by the `grunt-jade` module.
+
+Note that some modules require some configuration before the tasks can 
+be run.
+
+
+##### Custom tasks
+
+Besides the tasks loaded via plugins, we define our own tasks:
+
+    grunt.registerTask('name', 'description', [taskList]);
+
+This is known as a _alias task_ as it will just run a set of other
+tasks in sequence. Those tasks are specified as an array in taskslist.
+
+If we really want to go crazy, we can specify _function tasks_ which
+will... execute a function.
+
+    grunt.registerTask('name', 'description', function);
+
+We'll dive a bit deeper into the API a bit further but that's all there
+is to know to set up Grunt.
+
+
+##### Executing tasks
+
+Okay, now everything is set up execute tasks on the command line.
+
+To execute the default task:
+
+    grunt
+
+To execute any other task do:
+
+    grunt jade:dev
+    grunt sass
+
+This will execute the `jade` and `sass` task. For jade it will execute 
+the `dev` target (later more about that).
+
+That's all we need to know to execute tasks. We can now use Grunt.
 
 
 
