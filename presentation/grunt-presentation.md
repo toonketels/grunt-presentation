@@ -132,6 +132,8 @@ Now, the "exact" version of grunt travels with your project in your
 
 ### Using Grunt
 
+#### Package.json
+
 For grunt to work it expects 2 files in project root:
 
     package.json
@@ -140,8 +142,55 @@ For grunt to work it expects 2 files in project root:
 Start by creating an new package.json.
 
     {
-        name: 'grunt-presentation'
+      "name": "grunt-presentation",
+      "version": "0.1.0"
     }
+
+Install grunt via npm.
+
+    npm install grunt --save-dev
+
+`--save-dev` updates `package.json` with the installed version of grunt.
+Next time someone checks out your project they'll do:
+
+    npm install
+
+to download "your version" (or a later one) of grunt. You can always edit `package.json`
+to lock it down for an exact version of grunt in case of issues.
+
+The `package.json` is now updated like this:
+
+    {
+      "name": "grunt-presentation",
+      "version": "0.1.0",
+      "devDependencies": {
+        "grunt": "~0.4.1"
+      }
+    }
+
+Download `grunt-contrib-sass` and `grunt-jade` so we have some grunt plugins
+to play with.
+
+    npm install grunt-contrib-sass --save-dev
+    npm install grunt-jade --save-dev
+
+The `package.json` now looks like:
+
+    {
+      "name": "grunt-presentation",
+      "version": "0.1.0",
+      "devDependencies": {
+        "grunt": "~0.4.1",
+        "grunt-contrib-sass": "~0.3.0",
+        "grunt-jade": "~0.4.0"
+      }
+    }
+
+
+#### Gruntfile.js
+
+
+
 
 ### Scaffolding - a special task
 
