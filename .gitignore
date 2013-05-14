@@ -1,9 +1,3 @@
-# html and css is compiled from
-# jade/sass. So don't add the 
-# compiled files.
-*.html
-*.css
-
 # We don't want node modules
 demo/node_modules/
 demo/cat/
